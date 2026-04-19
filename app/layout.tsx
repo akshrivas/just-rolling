@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
-import GameMessageBar from '@/components/GameMessageBar';
 import GameInfoBlock from '@/components/GameInfoBlock';
 import { GameProvider } from '@/context/GameContext';
 
@@ -35,7 +34,6 @@ export default function RootLayout({
         <GameProvider>
           <Header />
           <GameInfoBlock />
-          <GameMessageBar />
           {children}
         </GameProvider>
       </body>

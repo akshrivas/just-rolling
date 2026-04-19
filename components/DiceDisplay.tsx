@@ -45,10 +45,10 @@ export default function DiceDisplay({
   const Dice = map[value];
 
   // Guard: Only render if Dice is defined (value is 1-6)
-  if (!Dice) return null;
+  if (!Dice) return null;                                     
 
-  const RING_SIZE = 128;
-  const RING_RADIUS = 50;
+  const RING_SIZE = 100;
+  const RING_RADIUS = 38;
   const RING_STROKE = 2.5;
   const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
   const dashOffset = CIRCUMFERENCE * (1 - timeLeft / roundDuration);
@@ -99,7 +99,7 @@ export default function DiceDisplay({
             ref={ref}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <Dice size={64} className="text-purple-400 dice-glow" />
+            <Dice size={50} className="text-purple-400 dice-glow" />
           </div>
         </div>
 

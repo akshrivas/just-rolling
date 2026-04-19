@@ -18,7 +18,7 @@ export default function BetGrid({ selected, onSelect, disabled }: Props) {
             onClick={() => !disabled && onSelect(n)}
             disabled={disabled}
             className={`
-              h-11 rounded-xl flex flex-col items-center justify-center gap-0.5
+              h-9 rounded-xl flex flex-col items-center justify-center gap-0.5
               transition-all duration-150 select-none
               ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
               ${

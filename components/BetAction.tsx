@@ -5,6 +5,7 @@ type Props = {
   selectedAmount: number;
   onBet: () => void;
   betPlaced: boolean;
+  bettingLocked: boolean;
 };
 
 export default function BetAction({
@@ -12,14 +13,15 @@ export default function BetAction({
   selectedAmount,
   onBet,
   betPlaced,
+  bettingLocked,
 }: Props) {
-  const isValid = selectedNumber !== null && !betPlaced;
+  const isValid = selectedNumber !== null && !betPlaced && !bettingLocked;
   const win = Math.floor(selectedAmount * 5.4);
 
   return (
-    <div className="mt-2">
+    <div className="mt-1.5">
       {/* Preview row — only shows bet details when a number is selected */}
-      <div className="flex items-center justify-between text-xs px-1 mb-2 h-4">
+      <div className="flex items-center justify-between text-xs px-1 mb-1.5 h-4">
         {selectedNumber !== null && !betPlaced ? (
           <>
             <span className="text-white/70">
@@ -37,6 +39,8 @@ export default function BetAction({
           <span className="text-white/50 w-full text-center text-xs">
             {betPlaced
               ? 'Waiting for roll…'
+              : bettingLocked
+              ? 'Bets closed for this round'
               : 'Pick a number to place your bet'}
           </span>
         )}
@@ -44,7 +48,7 @@ export default function BetAction({
 
       {/* CTA */}
       {betPlaced ? (
-        <div className="w-full py-2.5 rounded-xl text-sm font-semibold text-center text-green-400 bg-green-500/10 border border-green-500/20">
+        <div className="w-full py-2 rounded-xl text-sm font-semibold text-center text-green-400 bg-green-500/10 border border-green-500/20">
           ✓ Bet Placed
         </div>
       ) : (
@@ -52,7 +56,7 @@ export default function BetAction({
           onClick={onBet}
           disabled={!isValid}
           className={`
-            w-full py-2.5 rounded-xl text-sm font-semibold
+            w-full py-2 rounded-xl text-sm font-semibold
             transition-all duration-150
             ${
               isValid

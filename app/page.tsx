@@ -5,6 +5,7 @@ import BetGrid from '@/components/BetGrid';
 import AmountSelector from '@/components/AmountSelector';
 import BetAction from '@/components/BetAction';
 import DiceDisplay from '@/components/DiceDisplay';
+import ChatFeed from '@/components/ChatFeed';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
@@ -16,6 +17,9 @@ export default function Home() {
 
   // Derived: bet is active for this round
   const betPlaced = currentBet !== null && currentBet.roundId === live?.round;
+  // Lock betting in the last 5 seconds to avoid round-boundary inconsistency
+  const bettingLocked = (live?.timeLeft ?? 99) <= 5;
+  const bettingDisabled = betPlaced || bettingLocked;
 
   const prevRound = useRef<number | null>(null);
 
@@ -29,25 +33,30 @@ export default function Home() {
   }, [live?.round]);
 
   const handleBet = () => {
-    if (!selectedNumber) return;
+    if (!selectedNumber || bettingLocked) return;
     const ok = placeBet(selectedNumber, selectedAmount);
     if (ok) {
-      showBetPlaced();
+      showBetPlaced(selectedNumber, selectedAmount);
     } else {
       showLowBalance();
     }
   };
 
   return (
-    <main className="flex-1 relative flex items-center justify-center px-3 py-2 overflow-hidden">
+    <main className="flex-1 relative flex flex-col px-3 pt-2 pb-3 gap-2 overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
       </div>
 
-      <div className="relative w-full max-w-md bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-4 pt-3 pb-4">
+      {/* Chat feed — takes remaining space above the card, messages anchor to bottom */}
+      <div className="relative flex-1 flex flex-col justify-end overflow-hidden min-h-0">
+        <ChatFeed />
+      </div>
+
+      <div className="relative w-full max-w-md mx-auto bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-4 pt-2.5 pb-3">
         {/* Card header row */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <p className="text-white/60 text-xs font-medium tracking-widest uppercase">
             Pool &amp; Stake
           </p>
@@ -73,20 +82,20 @@ export default function Home() {
         )}
 
         {/* Divider */}
-        <div className="h-px bg-white/5 my-3" />
+        <div className="h-px bg-white/5 my-2" />
 
         {/* Bet Grid */}
         <BetGrid
           selected={selectedNumber}
           onSelect={setSelectedNumber}
-          disabled={betPlaced}
+          disabled={bettingDisabled}
         />
 
         {/* Amount Selector */}
         <AmountSelector
           selected={selectedAmount}
           onSelect={setSelectedAmount}
-          disabled={betPlaced}
+          disabled={bettingDisabled}
         />
 
         {/* Bet Action */}
@@ -95,6 +104,7 @@ export default function Home() {
           selectedAmount={selectedAmount}
           onBet={handleBet}
           betPlaced={betPlaced}
+          bettingLocked={bettingLocked}
         />
       </div>
     </main>

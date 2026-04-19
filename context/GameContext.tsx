@@ -17,6 +17,12 @@ import type { Bet, LastResult } from '@/hooks/useGameEngine';
 
 export type MessageType = 'info' | 'win' | 'loss';
 
+export type ChatMessage = {
+  id: number;
+  sender: 'user' | 'system';
+  text: string;
+};
+
 // Pick a random item from a pool, avoiding the last shown value
 function pick(pool: string[], last: string): string {
   const choices = pool.length > 1 ? pool.filter((m) => m !== last) : pool;
@@ -51,17 +57,24 @@ type GameContextValue = {
   message: string;
   messageType: MessageType;
   showMessage: (msg: string, type: MessageType) => void;
-  showBetPlaced: () => void;
+  showBetPlaced: (num: number, amount: number) => void;
   showLowBalance: () => void;
+  chatMessages: ChatMessage[];
+  userPhotoUrl: string | null;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUserId(u?.uid ?? null));
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUserId(u?.uid ?? null);
+      const raw = u?.photoURL || u?.providerData?.[0]?.photoURL || null;
+      setUserPhotoUrl(raw ? raw.replace('s96-c', 's256-c') : null);
+    });
     return () => unsub();
   }, []);
 
@@ -76,21 +89,51 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const [message, setMessage] = useState(() => pick(MESSAGES.idle, ''));
   const [messageType, setMessageType] = useState<MessageType>('info');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const showMessage = useCallback((msg: string, type: MessageType = 'info') => {
     setMessage(msg);
     setMessageType(type);
   }, []);
 
-  const showBetPlaced = useCallback(() => {
-    setMessageType('info');
-    setMessage((prev) => pick(MESSAGES.betPlaced, prev));
+  // Add a message to the chat feed (max 15 kept)
+  const chatIdRef = useRef(0);
+  const addToChat = useCallback((text: string, sender: 'user' | 'system') => {
+    const id = ++chatIdRef.current;
+    setChatMessages((prev) => {
+      const next = [...prev, { id, sender, text }];
+      return next.length > 15 ? next.slice(-15) : next;
+    });
   }, []);
 
+  // Post a system message to both the bar and the chat feed
+  const lastSysMsgRef = useRef('');
+  const postSystem = useCallback(
+    (pool: string[], type: MessageType) => {
+      const choices =
+        pool.length > 1
+          ? pool.filter((m) => m !== lastSysMsgRef.current)
+          : pool;
+      const m = choices[Math.floor(Math.random() * choices.length)];
+      lastSysMsgRef.current = m;
+      setMessage(m);
+      setMessageType(type);
+      addToChat(m, 'system');
+    },
+    [addToChat],
+  );
+
+  const showBetPlaced = useCallback(
+    (num: number, amount: number) => {
+      addToChat(`₹${amount.toLocaleString()} on ${num} 🎯`, 'user');
+      postSystem(MESSAGES.betPlaced, 'info');
+    },
+    [addToChat, postSystem],
+  );
+
   const showLowBalance = useCallback(() => {
-    setMessageType('loss');
-    setMessage((prev) => pick(MESSAGES.lowBalance, prev));
-  }, []);
+    postSystem(MESSAGES.lowBalance, 'loss');
+  }, [postSystem]);
 
   // Win / loss feedback — fires once per resolved round, with a short delay
   const lastResultRoundShown = useRef<number | null>(null);
@@ -100,17 +143,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     lastResultRoundShown.current = lastResult.roundId;
     const timer = setTimeout(() => {
       if (lastResult.status === 'WON') {
-        setMessageType('win');
-        setMessage((prev) =>
-          pick(MESSAGES.win(lastResult.winAmount.toLocaleString()), prev),
-        );
+        postSystem(MESSAGES.win(lastResult.winAmount.toLocaleString()), 'win');
       } else {
-        setMessageType('loss');
-        setMessage((prev) => pick(MESSAGES.loss, prev));
+        postSystem(MESSAGES.loss, 'loss');
       }
     }, 250);
     return () => clearTimeout(timer);
-  }, [lastResult]);
+  }, [lastResult, postSystem]);
 
   // Rolling countdown — fires once per round when timeLeft hits ≤ 3
   const rollingRoundShown = useRef<number | null>(null);
@@ -119,9 +158,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (live.timeLeft > 3) return;
     if (rollingRoundShown.current === live.round) return;
     rollingRoundShown.current = live.round;
-    setMessageType('info');
-    setMessage((prev) => pick(MESSAGES.rolling, prev));
-  }, [live]);
+    postSystem(MESSAGES.rolling, 'info');
+  }, [live, postSystem]);
 
   return (
     <GameContext.Provider
@@ -136,6 +174,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         showMessage,
         showBetPlaced,
         showLowBalance,
+        chatMessages,
+        userPhotoUrl,
       }}
     >
       {children}
