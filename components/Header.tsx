@@ -9,18 +9,11 @@ import {
   User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { useGame } from '@/context/GameContext';
 import Image from 'next/image';
 
-type CurrentBet = {
-  amount: number;
-  number: number;
-} | null;
-
-export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
+export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
-  const { balance } = useGame();
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,11 +46,11 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
   const photo = rawPhoto ? rawPhoto.replace('s96-c', 's256-c') : null;
 
   return (
-    <header className="w-full h-14 px-4 sm:px-8 flex items-center justify-between gap-4 bg-[#05060A] border-b border-white/10">
+    <header className="w-full h-11 px-3 sm:px-6 flex items-center justify-between gap-4 bg-[#05060A] border-b border-white/10">
       {/* LEFT */}
       <div className="shrink-0 flex items-center gap-2">
-        <div className="w-2 h-2 bg-purple-500 rounded-full" />
-        <span className="text-white font-semibold tracking-wide text-base whitespace-nowrap">
+        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+        <span className="text-white font-semibold tracking-wide text-sm whitespace-nowrap">
           Just Rolling
         </span>
       </div>
@@ -66,20 +59,13 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
       {user && (
         <div className="flex-1 flex justify-center min-w-0">
           <span className="text-sm text-white/60 truncate">
-            👋 Hey {user.displayName?.split(' ')[0]}
+            Hey {user.displayName?.split(' ')[0]}
           </span>
         </div>
       )}
 
       {/* RIGHT */}
-      <div ref={ref} className="shrink-0 flex items-center gap-3 relative">
-        {/* Balance */}
-        {user && (
-          <div className="text-sm text-purple-400 font-semibold tracking-wide">
-            ₹{balance.toLocaleString()}
-          </div>
-        )}
-
+      <div ref={ref} className="shrink-0 flex items-center gap-4 relative">
         {/* Avatar + Dropdown */}
         {user ? (
           <>
@@ -87,13 +73,13 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
               onClick={() => setOpen(!open)}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <div className="w-9 h-9 rounded-full overflow-hidden bg-[#111] border border-white/10 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-[#111] border border-white/10 flex items-center justify-center">
                 {photo && (
                   <Image
                     src={photo}
                     alt="avatar"
-                    width={36}
-                    height={36}
+                    width={32}
+                    height={32}
                     className="rounded-full object-cover"
                   />
                 )}

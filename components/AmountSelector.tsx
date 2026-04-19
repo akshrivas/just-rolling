@@ -14,7 +14,7 @@ export default function AmountSelector({
   disabled,
 }: Props) {
   return (
-    <div className="flex gap-2 mt-3 w-full">
+    <div className="flex gap-1.5 mt-2 w-full">
       {AMOUNTS.map((amt) => {
         const active = selected === amt;
 
@@ -24,13 +24,13 @@ export default function AmountSelector({
             onClick={() => !disabled && onSelect(amt)}
             disabled={disabled}
             className={`
-              flex-1 py-2 rounded-full text-sm font-medium
+              flex-1 py-1.5 rounded-full text-xs font-medium
               transition-all duration-150 select-none
               ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
               ${
                 active
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-500/40 ring-1 ring-purple-400/30'
-                  : 'bg-[#12121A] text-white/50 hover:text-white hover:bg-[#1A1A26] hover:ring-1 hover:ring-white/10'
+                  : 'bg-zinc-900 text-white/70 hover:text-white hover:bg-zinc-800 hover:ring-1 hover:ring-white/15'
               }
             `}
           >

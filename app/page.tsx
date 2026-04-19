@@ -8,7 +8,7 @@ import DiceDisplay from '@/components/DiceDisplay';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
-  const { live, currentBet, lastResult, placeBet } = useGame();
+  const { live, currentBet, lastResult, placeBet, showMessage } = useGame();
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState(100);
@@ -29,24 +29,29 @@ export default function Home() {
 
   const handleBet = () => {
     if (!selectedNumber) return;
-    placeBet(selectedNumber, selectedAmount);
+    const ok = placeBet(selectedNumber, selectedAmount);
+    if (ok) {
+      showMessage('Bet locked 🎯', 'info');
+    } else {
+      showMessage('Not enough balance ⚠️', 'loss');
+    }
   };
 
   return (
-    <main className="flex-1 relative flex items-center justify-center px-4 py-4 overflow-hidden">
+    <main className="flex-1 relative flex items-center justify-center px-3 py-2 overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
       </div>
 
-      <div className="relative w-full max-w-md bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-6 pt-5 pb-6">
+      <div className="relative w-full max-w-md bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-4 pt-3 pb-4">
         {/* Card header row */}
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-white/30 text-xs font-medium tracking-widest uppercase">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-white/60 text-xs font-medium tracking-widest uppercase">
             Pool &amp; Stake
           </p>
           {live?.round != null && (
-            <span className="text-[10px] text-white/20 font-medium tracking-wide">
+            <span className="text-[10px] text-white/45 font-medium tracking-wide">
               Round #{live.round}
             </span>
           )}
@@ -55,8 +60,7 @@ export default function Home() {
         {/* Dice */}
         {live ? (
           <DiceDisplay
-            value={live.result}
-            previous={live.previousResult}
+            value={live.previousResult}
             timeLeft={live.timeLeft}
             roundDuration={live.roundDuration}
           />
@@ -68,7 +72,7 @@ export default function Home() {
         )}
 
         {/* Divider */}
-        <div className="h-px bg-white/5 my-5" />
+        <div className="h-px bg-white/5 my-3" />
 
         {/* Bet Grid */}
         <BetGrid

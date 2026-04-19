@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
+import GameMessageBar from '@/components/GameMessageBar';
+import GameInfoBlock from '@/components/GameInfoBlock';
 import { GameProvider } from '@/context/GameContext';
 
 const geistSans = Geist({
@@ -32,6 +34,8 @@ export default function RootLayout({
       <body className="h-screen flex flex-col overflow-hidden bg-[#05060A]">
         <GameProvider>
           <Header />
+          <GameMessageBar />
+          <GameInfoBlock />
           {children}
         </GameProvider>
       </body>
