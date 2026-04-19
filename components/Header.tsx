@@ -9,6 +9,7 @@ import {
   User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useGame } from '@/context/GameContext';
 import Image from 'next/image';
 
 type CurrentBet = {
@@ -18,15 +19,14 @@ type CurrentBet = {
 
 export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
   const [user, setUser] = useState<User | null>(null);
-  const [balance, setBalance] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
+  const { balance } = useGame();
 
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setBalance(u ? 10000 : null);
     });
     return () => unsub();
   }, []);
@@ -74,7 +74,7 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
       {/* RIGHT */}
       <div ref={ref} className="shrink-0 flex items-center gap-3 relative">
         {/* Balance */}
-        {user && balance !== null && (
+        {user && (
           <div className="text-sm text-purple-400 font-semibold tracking-wide">
             ₹{balance.toLocaleString()}
           </div>

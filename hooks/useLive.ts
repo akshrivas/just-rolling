@@ -6,6 +6,7 @@ export type LiveData = {
   result: number;
   previousResult: number;
   timeLeft: number;
+  roundDuration: number;
   round: number;
 };
 

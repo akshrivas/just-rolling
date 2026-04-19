@@ -25,6 +25,7 @@ export async function GET() {
     result,
     previousResult,
     timeLeft,
+    roundDuration: ROUND_DURATION,
     round: slice,
     serverTime: now,
   });

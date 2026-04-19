@@ -5,22 +5,23 @@ import BetGrid from '@/components/BetGrid';
 import AmountSelector from '@/components/AmountSelector';
 import BetAction from '@/components/BetAction';
 import DiceDisplay from '@/components/DiceDisplay';
-import { useLive } from '@/hooks/useLive';
+import { useGame } from '@/context/GameContext';
 
 export default function Home() {
-  const live = useLive();
+  const { live, currentBet, lastResult, placeBet } = useGame();
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState(100);
-  const [betPlaced, setBetPlaced] = useState(false);
+
+  // Derived: bet is active for this round
+  const betPlaced = currentBet !== null && currentBet.roundId === live?.round;
 
   const prevRound = useRef<number | null>(null);
 
-  // Reset bet state when a new round begins
+  // Reset number selection when a new round begins
   useEffect(() => {
     if (live?.round == null) return;
     if (prevRound.current !== null && live.round !== prevRound.current) {
-      setBetPlaced(false);
       setSelectedNumber(null);
     }
     prevRound.current = live.round;
@@ -28,14 +29,14 @@ export default function Home() {
 
   const handleBet = () => {
     if (!selectedNumber) return;
-    setBetPlaced(true);
+    placeBet(selectedNumber, selectedAmount);
   };
 
   return (
     <main className="flex-1 relative flex items-center justify-center px-4 py-4 overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-[600px] h-[400px] bg-purple-700/10 blur-[120px] rounded-full" />
+        <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
       </div>
 
       <div className="relative w-full max-w-md bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-6 pt-5 pb-6">
@@ -57,11 +58,12 @@ export default function Home() {
             value={live.result}
             previous={live.previousResult}
             timeLeft={live.timeLeft}
+            roundDuration={live.roundDuration}
           />
         ) : (
           <div className="flex flex-col items-center gap-3 py-4">
             <div className="w-28 h-28 rounded-3xl bg-[#1A1A22] animate-pulse" />
-            <div className="w-full h-[3px] rounded-full bg-[#1A1A22] animate-pulse mt-4" />
+            <div className="w-full h-0.75 rounded-full bg-[#1A1A22] animate-pulse mt-4" />
           </div>
         )}
 
@@ -88,6 +90,7 @@ export default function Home() {
           selectedAmount={selectedAmount}
           onBet={handleBet}
           betPlaced={betPlaced}
+          lastResult={lastResult}
         />
       </div>
     </main>

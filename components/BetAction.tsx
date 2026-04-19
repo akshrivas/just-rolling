@@ -1,10 +1,13 @@
 'use client';
 
+import type { RoundResult } from '@/hooks/useGameEngine';
+
 type Props = {
   selectedNumber: number | null;
   selectedAmount: number;
   onBet: () => void;
   betPlaced: boolean;
+  lastResult: RoundResult | null;
 };
 
 export default function BetAction({
@@ -12,9 +15,13 @@ export default function BetAction({
   selectedAmount,
   onBet,
   betPlaced,
+  lastResult,
 }: Props) {
   const isValid = selectedNumber !== null && !betPlaced;
   const win = Math.floor(selectedAmount * 5.4);
+
+  // Determine what to show in the preview row
+  const showLastResult = lastResult !== null && !betPlaced && selectedNumber === null;
 
   return (
     <div className="mt-4">
@@ -24,6 +31,16 @@ export default function BetAction({
           <span className="w-full text-center text-green-400/70 text-[11px] tracking-wide">
             Bet placed — waiting for roll
           </span>
+        ) : showLastResult ? (
+          lastResult.bet.status === 'WON' ? (
+            <span className="w-full text-center text-green-400 text-[11px] font-semibold tracking-wide">
+              You won ₹{lastResult.payout.toLocaleString()} 🎉
+            </span>
+          ) : (
+            <span className="w-full text-center text-red-400/80 text-[11px] tracking-wide">
+              You lost ₹{lastResult.bet.amount.toLocaleString()}
+            </span>
+          )
         ) : selectedNumber !== null ? (
           <>
             <span className="text-white/40">

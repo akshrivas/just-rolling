@@ -10,8 +10,6 @@ import {
   FaDiceSix,
 } from 'react-icons/fa';
 
-const ROUND_DURATION = 10;
-
 const map: Record<
   number,
   React.ComponentType<{ size?: number; className?: string }>
@@ -28,9 +26,10 @@ type Props = {
   value: number;
   previous: number;
   timeLeft: number;
+  roundDuration: number;
 };
 
-export default function DiceDisplay({ value, previous, timeLeft }: Props) {
+export default function DiceDisplay({ value, previous, timeLeft, roundDuration }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export default function DiceDisplay({ value, previous, timeLeft }: Props) {
   const RING_RADIUS = 62;
   const RING_STROKE = 2.5;
   const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-  const dashOffset = CIRCUMFERENCE * (1 - timeLeft / ROUND_DURATION);
+  const dashOffset = CIRCUMFERENCE * (1 - timeLeft / roundDuration);
   const ringColor =
     timeLeft <= 3 ? '#ef4444' : timeLeft <= 5 ? '#fbbf24' : '#a855f7';
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
+import { GameProvider } from '@/context/GameContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,8 +30,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-[#05060A]`}
     >
       <body className="h-screen flex flex-col overflow-hidden bg-[#05060A]">
-        <Header />
-        {children}
+        <GameProvider>
+          <Header />
+          {children}
+        </GameProvider>
       </body>
     </html>
   );
