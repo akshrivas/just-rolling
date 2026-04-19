@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -14,6 +15,16 @@ import { useLive } from '@/hooks/useLive';
 import { useWallet } from '@/hooks/useWallet';
 import { useGameEngine } from '@/hooks/useGameEngine';
 import type { Bet, LastResult } from '@/hooks/useGameEngine';
+
+export type GameState =
+  | 'NO_LOGIN'
+  | 'IDLE'
+  | 'BET_ACTIVE'
+  | 'RESOLVING'
+  | 'RESULT_WIN'
+  | 'RESULT_LOSS';
+
+export type AccentName = 'purple' | 'amber' | 'red' | 'green' | 'zinc';
 
 export type MessageType = 'info' | 'win' | 'loss';
 
@@ -35,12 +46,7 @@ function pick(pool: string[], last: string): string {
 }
 
 const MESSAGES = {
-  betPlaced: [
-    'Locked in 🎯',
-    "Bet's on 👀",
-    "You're in 🔥",
-    'Let it ride 🎲',
-  ],
+  betPlaced: ['Locked in 🎯', "Bet's on 👀", "You're in 🔥", 'Let it ride 🎲'],
   rolling: ['Rolling… 🎲'],
   lowBalance: ['Not enough balance ⚠️', 'Low balance 👀'],
   idle: ['Place your bet 🎯'],
@@ -60,6 +66,9 @@ type GameContextValue = {
   chatMessages: ChatMessage[];
   userPhotoUrl: string | null;
   isLoggedIn: boolean;
+  resultFlash: 'win' | 'loss' | null;
+  gameState: GameState;
+  accent: AccentName;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -89,6 +98,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState(() => pick(MESSAGES.idle, ''));
   const [messageType, setMessageType] = useState<MessageType>('info');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [resultFlash, setResultFlash] = useState<'win' | 'loss' | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isLoggedIn = userId !== null;
 
   const showMessage = useCallback((msg: string, type: MessageType = 'info') => {
     setMessage(msg);
@@ -148,25 +161,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (lastResultRoundShown.current === lastResult.roundId) return;
     lastResultRoundShown.current = lastResult.roundId;
     const timer = setTimeout(() => {
-      // Update message bar
+      // Update message bar + trigger result flash
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
       if (lastResult.status === 'WON') {
         setMessage(`🔥 Hit! +₹${lastResult.winAmount.toLocaleString()}`);
         setMessageType('win');
+        setResultFlash('win');
+        flashTimerRef.current = setTimeout(() => setResultFlash(null), 2500);
       } else {
         setMessage('Missed 🤏');
         setMessageType('loss');
+        setResultFlash('loss');
+        flashTimerRef.current = setTimeout(() => setResultFlash(null), 2000);
       }
       // Structured result bubble in chat
       if (lastResult.result !== -1) {
-        addToChat(
-          '',
-          'system',
-          {
-            predicted: lastResult.predictedNumber,
-            actual: lastResult.result,
-            status: lastResult.status,
-          },
-        );
+        addToChat('', 'system', {
+          predicted: lastResult.predictedNumber,
+          actual: lastResult.result,
+          status: lastResult.status,
+        });
       }
     }, 250);
     return () => clearTimeout(timer);
@@ -181,6 +195,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     rollingRoundShown.current = live.round;
     postSystem(MESSAGES.rolling, 'info');
   }, [live, postSystem]);
+
+  // Cleanup flash timer on unmount
+  useEffect(() => () => { if (flashTimerRef.current) clearTimeout(flashTimerRef.current); }, []);
+
+  const gameState = useMemo<GameState>(() => {
+    if (!isLoggedIn) return 'NO_LOGIN';
+    if (resultFlash === 'win') return 'RESULT_WIN';
+    if (resultFlash === 'loss') return 'RESULT_LOSS';
+    if (live && live.timeLeft <= 3) return 'RESOLVING';
+    if (currentBet && live && currentBet.roundId === live.round) return 'BET_ACTIVE';
+    return 'IDLE';
+  }, [isLoggedIn, resultFlash, live, currentBet]);
+
+  const accent = useMemo<AccentName>(() => {
+    switch (gameState) {
+      case 'RESULT_WIN':  return 'green';
+      case 'RESULT_LOSS': return 'purple';
+      case 'RESOLVING':   return 'red';
+      case 'BET_ACTIVE':  return 'amber';
+      case 'NO_LOGIN':    return 'zinc';
+      default:            return 'purple';
+    }
+  }, [gameState]);
 
   return (
     <GameContext.Provider
@@ -197,7 +234,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         showLowBalance,
         chatMessages,
         userPhotoUrl,
-        isLoggedIn: userId !== null,
+        isLoggedIn,
+        resultFlash,
+        gameState,
+        accent,
       }}
     >
       {children}

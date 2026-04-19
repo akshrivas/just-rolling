@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import type { AccentName } from '@/context/GameContext';
 import {
   FaDiceOne,
   FaDiceTwo,
@@ -22,44 +23,86 @@ const map: Record<
   6: FaDiceSix,
 };
 
+const RING_HEX: Record<AccentName, string> = {
+  purple: '#a855f7',
+  amber:  '#f59e0b',
+  red:    '#ef4444',
+  green:  '#22c55e',
+  zinc:   '#71717a',
+};
+
+const DICE_CLS: Record<AccentName, string> = {
+  purple: 'text-purple-400',
+  amber:  'text-amber-400',
+  red:    'text-red-400',
+  green:  'text-green-400',
+  zinc:   'text-zinc-400',
+};
+
+const AMBIENT_CLS: Record<AccentName, string> = {
+  purple: 'bg-purple-600/20',
+  amber:  'bg-amber-500/15',
+  red:    'bg-red-600/15',
+  green:  'bg-green-600/20',
+  zinc:   'bg-zinc-600/10',
+};
+
 type Props = {
   value: number;
   timeLeft: number;
   roundDuration: number;
+  resultFlash?: 'win' | 'loss' | null;
+  accent: AccentName;
 };
 
 export default function DiceDisplay({
   value,
   timeLeft,
   roundDuration,
+  resultFlash,
+  accent,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const rollRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
 
+  // Roll animation fires on every new value (new round)
   useEffect(() => {
-    if (!ref.current) return;
-    ref.current.classList.remove('roll');
-    void ref.current.offsetWidth;
-    ref.current.classList.add('roll');
+    if (!rollRef.current) return;
+    rollRef.current.classList.remove('roll');
+    void rollRef.current.offsetWidth;
+    rollRef.current.classList.add('roll');
   }, [value]);
+
+  // Win / loss animation on the icon wrapper
+  useEffect(() => {
+    if (!iconRef.current) return;
+    iconRef.current.classList.remove('dice-win', 'dice-loss');
+    if (!resultFlash) return;
+    void iconRef.current.offsetWidth;
+    iconRef.current.classList.add(resultFlash === 'win' ? 'dice-win' : 'dice-loss');
+  }, [resultFlash]);
 
   const Dice = map[value];
 
   // Guard: Only render if Dice is defined (value is 1-6)
-  if (!Dice) return null;                                     
+  if (!Dice) return null;
 
   const RING_SIZE = 100;
   const RING_RADIUS = 38;
   const RING_STROKE = 2.5;
   const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
   const dashOffset = CIRCUMFERENCE * (1 - timeLeft / roundDuration);
-  const ringColor =
-    timeLeft <= 3 ? '#ef4444' : timeLeft <= 5 ? '#fbbf24' : '#a855f7';
+  const ringColor = RING_HEX[accent];
+  const diceColorClass = DICE_CLS[accent];
+  const ambientColorClass = AMBIENT_CLS[accent];
 
   return (
     <div className="w-full flex flex-col items-center py-0">
       <div className="dice-float relative flex flex-col items-center">
-        {/* Ambient glow */}
-        <div className="absolute inset-0 -m-6 bg-purple-600/20 blur-3xl rounded-full pointer-events-none" />
+        {/* Ambient glow — color shifts with state */}
+        <div
+          className={`absolute inset-0 -m-6 blur-3xl rounded-full pointer-events-none transition-all duration-500 ${ambientColorClass}`}
+        />
 
         {/* Ring + Dice container */}
         <div
@@ -94,12 +137,21 @@ export default function DiceDisplay({
             />
           </svg>
 
-          {/* Dice — centered */}
+          {/* Roll container — handles the spin/bounce animation */}
           <div
-            ref={ref}
+            ref={rollRef}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <Dice size={50} className="text-purple-400 dice-glow" />
+            {/* Icon wrapper — handles glow (win) or shake (loss) */}
+            <div
+              ref={iconRef}
+              className={resultFlash ? '' : 'dice-glow'}
+            >
+              <Dice
+                size={50}
+                className={`transition-colors duration-500 ${diceColorClass}`}
+              />
+            </div>
           </div>
         </div>
 

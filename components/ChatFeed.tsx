@@ -38,7 +38,9 @@ export default function ChatFeed() {
                 >
                   <div className="text-white/45">
                     Predicted →{' '}
-                    <span className="text-white font-semibold">{predicted}</span>
+                    <span className="text-white font-semibold">
+                      {predicted}
+                    </span>
                   </div>
                   <div className="text-white/45">
                     Actual →{' '}

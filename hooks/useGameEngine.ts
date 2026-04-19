@@ -18,9 +18,9 @@ export type Bet = {
 export type LastResult = {
   roundId: number;
   predictedNumber: number; // what the user bet on
-  result: number;    // dice value (-1 = missed round)
+  result: number; // dice value (-1 = missed round)
   winAmount: number; // 0 if lost
-  amount: number;    // original stake, for loss display
+  amount: number; // original stake, for loss display
   status: 'WON' | 'LOST';
 };
 
@@ -31,7 +31,8 @@ type PersistedState = {
 };
 
 function loadGame(key: string | null): PersistedState {
-  if (!key) return { currentBet: null, lastResolvedRound: null, lastResult: null };
+  if (!key)
+    return { currentBet: null, lastResolvedRound: null, lastResult: null };
   try {
     const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw) as PersistedState;
@@ -69,9 +70,15 @@ export function useGameEngine({ live, deduct, credit, userId }: Props) {
   gameKeyRef.current = userId ? gameKey(userId) : null;
 
   // Keep refs in sync with latest injected functions
-  useEffect(() => { creditRef.current = credit; });
-  useEffect(() => { deductRef.current = deduct; });
-  useEffect(() => { liveRef.current = live; });
+  useEffect(() => {
+    creditRef.current = credit;
+  });
+  useEffect(() => {
+    deductRef.current = deduct;
+  });
+  useEffect(() => {
+    liveRef.current = live;
+  });
 
   // Reset all state and reload from the correct user's storage on user change
   useEffect(() => {
@@ -114,7 +121,11 @@ export function useGameEngine({ live, deduct, credit, userId }: Props) {
     prevRoundRef.current = round;
 
     // Double-resolution guard
-    if (resolvedRoundRef.current !== null && resolvedRoundRef.current >= roundToResolve) return;
+    if (
+      resolvedRoundRef.current !== null &&
+      resolvedRoundRef.current >= roundToResolve
+    )
+      return;
     resolvedRoundRef.current = roundToResolve;
 
     const bet = currentBetRef.current;
@@ -129,7 +140,11 @@ export function useGameEngine({ live, deduct, credit, userId }: Props) {
     // No active bet — just mark round as resolved
     if (bet === null) {
       const key = gameKeyRef.current;
-      saveGame(key, { ...loadGame(key), currentBet: null, lastResolvedRound: roundToResolve });
+      saveGame(key, {
+        ...loadGame(key),
+        currentBet: null,
+        lastResolvedRound: roundToResolve,
+      });
       return;
     }
 
@@ -155,7 +170,11 @@ export function useGameEngine({ live, deduct, credit, userId }: Props) {
     currentBetRef.current = null;
     setCurrentBet(null);
 
-    saveGame(gameKeyRef.current, { currentBet: null, lastResolvedRound: roundToResolve, lastResult: result });
+    saveGame(gameKeyRef.current, {
+      currentBet: null,
+      lastResolvedRound: roundToResolve,
+      lastResult: result,
+    });
   }, [live?.round]); // eslint-disable-line react-hooks/exhaustive-deps
   // Intentionally only on round change — all other deps accessed via refs
 

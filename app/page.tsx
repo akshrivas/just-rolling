@@ -9,8 +9,16 @@ import ChatFeed from '@/components/ChatFeed';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
-  const { live, currentBet, placeBet, showBetPlaced, showLowBalance, isLoggedIn } =
-    useGame();
+  const {
+    live,
+    currentBet,
+    placeBet,
+    showBetPlaced,
+    showLowBalance,
+    isLoggedIn,
+    resultFlash,
+    accent,
+  } = useGame();
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState(100);
@@ -43,18 +51,31 @@ export default function Home() {
   };
 
   return (
-    <main className="flex-1 relative flex flex-col items-center px-3 pt-2 pb-3 gap-2 overflow-hidden">
-      {/* Ambient background glow */}
+    <main className={`flex-1 relative flex flex-col items-center px-3 pt-2 pb-3 gap-2 overflow-hidden ${!isLoggedIn ? 'justify-center' : ''}`}>
+      {/* Ambient background glow — follows accent color */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
+        <div className={`w-150 h-100 blur-3xl rounded-full transition-all duration-700 ${
+          accent === 'green'  ? 'bg-green-700/15'  :
+          accent === 'red'    ? 'bg-red-700/10'    :
+          accent === 'amber'  ? 'bg-amber-600/10'  :
+          accent === 'zinc'   ? 'bg-zinc-700/5'    :
+          'bg-purple-700/10'
+        }`} />
       </div>
 
-      {/* Chat feed — fills remaining height, messages anchor to bottom */}
-      <div className="relative flex-1 min-h-0 w-full max-w-md mx-auto flex flex-col justify-end overflow-hidden">
-        <ChatFeed />
-      </div>
+      {/* Chat feed — only visible when logged in */}
+      {isLoggedIn && (
+        <div className="relative flex-1 min-h-0 w-full max-w-md mx-auto flex flex-col justify-end overflow-hidden">
+          <ChatFeed />
+        </div>
+      )}
 
-      <div className="relative w-full max-w-md mx-auto bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-4 pt-2.5 pb-3">
+      <div className={`relative w-full max-w-md mx-auto bg-[#0D0D14] rounded-2xl shadow-2xl shadow-black/60 px-4 pt-2.5 pb-3 border transition-colors duration-500 ${
+        accent === 'amber' ? 'border-amber-500/30' :
+        accent === 'red'   ? 'border-red-500/25'   :
+        accent === 'green' ? 'border-green-500/25'  :
+        'border-white/10'
+      }`}>
         {/* Card header row */}
         <div className="flex items-center justify-between mb-2">
           <p className="text-white/60 text-xs font-medium tracking-widest uppercase">
@@ -73,6 +94,8 @@ export default function Home() {
             value={live.previousResult}
             timeLeft={live.timeLeft}
             roundDuration={live.roundDuration}
+            resultFlash={resultFlash}
+            accent={accent}
           />
         ) : (
           <div className="flex flex-col items-center gap-3 py-4">
@@ -84,38 +107,41 @@ export default function Home() {
         {/* Divider */}
         <div className="h-px bg-white/5 my-2" />
 
-        {/* Betting controls — gated behind login */}
-        <div className="relative">
-          {!isLoggedIn && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#0D0D14]/80 backdrop-blur-sm">
-              <span className="text-white/70 text-sm font-medium">Login to place bets</span>
-              <span className="text-white/35 text-xs">Tap the Login button above ↑</span>
-            </div>
-          )}
+        {/* Betting controls */}
+        {isLoggedIn ? (
+          <div className="relative">
+            {/* Bet Grid */}
+            <BetGrid
+              selected={selectedNumber}
+              onSelect={setSelectedNumber}
+              disabled={bettingDisabled}
+              betActive={betPlaced}
+              accent={accent}
+            />
 
-          {/* Bet Grid */}
-          <BetGrid
-            selected={selectedNumber}
-            onSelect={setSelectedNumber}
-            disabled={bettingDisabled}
-          />
+            {/* Amount Selector */}
+            <AmountSelector
+              selected={selectedAmount}
+              onSelect={setSelectedAmount}
+              disabled={bettingDisabled}
+              accent={accent}
+            />
 
-          {/* Amount Selector */}
-          <AmountSelector
-            selected={selectedAmount}
-            onSelect={setSelectedAmount}
-            disabled={bettingDisabled}
-          />
-
-          {/* Bet Action */}
-          <BetAction
-            selectedNumber={selectedNumber}
-            selectedAmount={selectedAmount}
-            onBet={handleBet}
-            betPlaced={betPlaced}
-            bettingLocked={bettingLocked}
-          />
-        </div>
+            {/* Bet Action */}
+            <BetAction
+              selectedNumber={selectedNumber}
+              selectedAmount={selectedAmount}
+              onBet={handleBet}
+              betPlaced={betPlaced}
+              bettingLocked={bettingLocked}
+              accent={accent}
+            />
+          </div>
+        ) : (
+          <div className="py-3 text-center text-white/35 text-sm">
+            Sign in to place bets
+          </div>
+        )}
       </div>
     </main>
   );
