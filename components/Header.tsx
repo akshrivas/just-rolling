@@ -14,10 +14,10 @@ import Image from 'next/image';
 
 const DOT_CLS: Record<string, string> = {
   purple: 'bg-purple-500',
-  amber:  'bg-amber-400',
-  red:    'bg-red-500',
-  green:  'bg-green-400',
-  zinc:   'bg-zinc-500',
+  amber: 'bg-amber-400',
+  red: 'bg-red-500',
+  green: 'bg-green-400',
+  zinc: 'bg-zinc-500',
 };
 
 export default function Header() {
@@ -59,7 +59,9 @@ export default function Header() {
     <header className="w-full h-11 px-3 sm:px-6 flex items-center justify-between gap-4 bg-[#05060A] border-b border-white/10">
       {/* LEFT */}
       <div className="shrink-0 flex items-center gap-2">
-        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${DOT_CLS[accent] ?? 'bg-purple-500'}`} />
+        <div
+          className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${DOT_CLS[accent] ?? 'bg-purple-500'}`}
+        />
         <span className="text-white font-semibold tracking-wide text-sm whitespace-nowrap">
           Just Rolling
         </span>
@@ -106,35 +108,7 @@ export default function Header() {
               </div>
             )}
           </>
-        ) : (
-          <>
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              {/* Ghost avatar placeholder */}
-              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center">
-                <span className="text-white/30 text-xs font-semibold">?</span>
-              </div>
-              <span className="text-white/30 text-xs">▼</span>
-            </button>
-
-            {open && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-[#0B0C10] border border-white/10 rounded-xl shadow-xl p-2 z-50">
-                <div className="px-3 py-2 text-xs text-white/40">
-                  Not signed in
-                </div>
-                <div className="h-px bg-white/10 my-1" />
-                <button
-                  onClick={() => { handleLogin(); setOpen(false); }}
-                  className="w-full text-left px-3 py-2 text-sm rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition cursor-pointer"
-                >
-                  Sign in with Google
-                </button>
-              </div>
-            )}
-          </>
-        )}
+        ) : null}
       </div>
     </header>
   );

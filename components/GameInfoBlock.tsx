@@ -4,7 +4,8 @@ import { FaWallet, FaCoins } from 'react-icons/fa';
 import { useGame } from '@/context/GameContext';
 
 export default function GameInfoBlock() {
-  const { balance, currentBet, live, gameState, lastResult, isLoggedIn } = useGame();
+  const { balance, currentBet, live, gameState, lastResult, isLoggedIn } =
+    useGame();
 
   // Only render when logged in and live
   if (!live || !isLoggedIn) return null;
@@ -22,9 +23,15 @@ export default function GameInfoBlock() {
               Wallet
             </span>
             <span
-              key={gameState === 'RESULT_WIN' ? `win-${lastResult?.roundId}` : 'normal'}
+              key={
+                gameState === 'RESULT_WIN'
+                  ? `win-${lastResult?.roundId}`
+                  : 'normal'
+              }
               className={`text-sm font-bold mt-0.5 transition-colors duration-500 ${
-                gameState === 'RESULT_WIN' ? 'text-green-400 wallet-win' : 'text-purple-200'
+                gameState === 'RESULT_WIN'
+                  ? 'text-green-400 wallet-win'
+                  : 'text-purple-200'
               }`}
             >
               ₹{balance.toLocaleString()}

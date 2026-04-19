@@ -3,11 +3,14 @@
 import type { AccentName } from '@/context/GameContext';
 
 const TILE_ACTIVE_CLS: Record<AccentName, string> = {
-  purple: 'bg-purple-600 shadow-lg shadow-purple-500/50 scale-[1.05] ring-1 ring-purple-400/40',
-  amber:  'bg-amber-600  shadow-lg shadow-amber-500/40  scale-[1.05] ring-1 ring-amber-400/40',
-  red:    'bg-red-600    shadow-lg shadow-red-500/40    scale-[1.05] ring-1 ring-red-400/40',
-  green:  'bg-green-600  shadow-lg shadow-green-500/40  scale-[1.05] ring-1 ring-green-400/40',
-  zinc:   'bg-zinc-700   shadow-lg shadow-zinc-500/30   scale-[1.05] ring-1 ring-zinc-500/30',
+  purple:
+    'bg-purple-600 shadow-lg shadow-purple-500/50 scale-[1.05] ring-1 ring-purple-400/40',
+  amber:
+    'bg-amber-600  shadow-lg shadow-amber-500/40  scale-[1.05] ring-1 ring-amber-400/40',
+  red: 'bg-red-600    shadow-lg shadow-red-500/40    scale-[1.05] ring-1 ring-red-400/40',
+  green:
+    'bg-green-600  shadow-lg shadow-green-500/40  scale-[1.05] ring-1 ring-green-400/40',
+  zinc: 'bg-zinc-700   shadow-lg shadow-zinc-500/30   scale-[1.05] ring-1 ring-zinc-500/30',
 };
 
 type Props = {
@@ -18,7 +21,13 @@ type Props = {
   accent: AccentName;
 };
 
-export default function BetGrid({ selected, onSelect, disabled, betActive, accent }: Props) {
+export default function BetGrid({
+  selected,
+  onSelect,
+  disabled,
+  betActive,
+  accent,
+}: Props) {
   return (
     <div className="grid grid-cols-3 gap-1.5 w-full">
       {[1, 2, 3, 4, 5, 6].map((n) => {

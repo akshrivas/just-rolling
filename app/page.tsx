@@ -6,6 +6,7 @@ import AmountSelector from '@/components/AmountSelector';
 import BetAction from '@/components/BetAction';
 import DiceDisplay from '@/components/DiceDisplay';
 import ChatFeed from '@/components/ChatFeed';
+import LandingView from '@/components/LandingView';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
@@ -50,17 +51,35 @@ export default function Home() {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <main className="flex-1 relative flex flex-col overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
+        </div>
+        <LandingView />
+      </main>
+    );
+  }
+
   return (
-    <main className={`flex-1 relative flex flex-col items-center px-3 pt-2 pb-3 gap-2 overflow-hidden ${!isLoggedIn ? 'justify-center' : ''}`}>
+    <main className="flex-1 relative flex flex-col items-center px-3 pt-2 pb-3 gap-2 overflow-hidden">
       {/* Ambient background glow — follows accent color */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className={`w-150 h-100 blur-3xl rounded-full transition-all duration-700 ${
-          accent === 'green'  ? 'bg-green-700/15'  :
-          accent === 'red'    ? 'bg-red-700/10'    :
-          accent === 'amber'  ? 'bg-amber-600/10'  :
-          accent === 'zinc'   ? 'bg-zinc-700/5'    :
-          'bg-purple-700/10'
-        }`} />
+        <div
+          className={`w-150 h-100 blur-3xl rounded-full transition-all duration-700 ${
+            accent === 'green'
+              ? 'bg-green-700/15'
+              : accent === 'red'
+                ? 'bg-red-700/10'
+                : accent === 'amber'
+                  ? 'bg-amber-600/10'
+                  : accent === 'zinc'
+                    ? 'bg-zinc-700/5'
+                    : 'bg-purple-700/10'
+          }`}
+        />
       </div>
 
       {/* Chat feed — only visible when logged in */}
@@ -70,12 +89,17 @@ export default function Home() {
         </div>
       )}
 
-      <div className={`relative w-full max-w-md mx-auto bg-[#0D0D14] rounded-2xl shadow-2xl shadow-black/60 px-4 pt-2.5 pb-3 border transition-colors duration-500 ${
-        accent === 'amber' ? 'border-amber-500/30' :
-        accent === 'red'   ? 'border-red-500/25'   :
-        accent === 'green' ? 'border-green-500/25'  :
-        'border-white/10'
-      }`}>
+      <div
+        className={`relative w-full max-w-md mx-auto bg-[#0D0D14] rounded-2xl shadow-2xl shadow-black/60 px-4 pt-2.5 pb-3 border transition-colors duration-500 ${
+          accent === 'amber'
+            ? 'border-amber-500/30'
+            : accent === 'red'
+              ? 'border-red-500/25'
+              : accent === 'green'
+                ? 'border-green-500/25'
+                : 'border-white/10'
+        }`}
+      >
         {/* Card header row */}
         <div className="flex items-center justify-between mb-2">
           <p className="text-white/60 text-xs font-medium tracking-widest uppercase">

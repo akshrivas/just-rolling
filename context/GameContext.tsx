@@ -197,25 +197,37 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [live, postSystem]);
 
   // Cleanup flash timer on unmount
-  useEffect(() => () => { if (flashTimerRef.current) clearTimeout(flashTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    },
+    [],
+  );
 
   const gameState = useMemo<GameState>(() => {
     if (!isLoggedIn) return 'NO_LOGIN';
     if (resultFlash === 'win') return 'RESULT_WIN';
     if (resultFlash === 'loss') return 'RESULT_LOSS';
     if (live && live.timeLeft <= 3) return 'RESOLVING';
-    if (currentBet && live && currentBet.roundId === live.round) return 'BET_ACTIVE';
+    if (currentBet && live && currentBet.roundId === live.round)
+      return 'BET_ACTIVE';
     return 'IDLE';
   }, [isLoggedIn, resultFlash, live, currentBet]);
 
   const accent = useMemo<AccentName>(() => {
     switch (gameState) {
-      case 'RESULT_WIN':  return 'green';
-      case 'RESULT_LOSS': return 'purple';
-      case 'RESOLVING':   return 'red';
-      case 'BET_ACTIVE':  return 'amber';
-      case 'NO_LOGIN':    return 'zinc';
-      default:            return 'purple';
+      case 'RESULT_WIN':
+        return 'green';
+      case 'RESULT_LOSS':
+        return 'purple';
+      case 'RESOLVING':
+        return 'red';
+      case 'BET_ACTIVE':
+        return 'amber';
+      case 'NO_LOGIN':
+        return 'zinc';
+      default:
+        return 'purple';
     }
   }, [gameState]);
 

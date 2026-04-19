@@ -5,11 +5,14 @@ import type { AccentName } from '@/context/GameContext';
 const AMOUNTS = [100, 200, 500, 1000];
 
 const PILL_CLS: Record<AccentName, string> = {
-  purple: 'bg-purple-600 shadow-md shadow-purple-500/40 ring-1 ring-purple-400/30',
-  amber:  'bg-amber-600  shadow-md shadow-amber-500/40  ring-1 ring-amber-400/30',
-  red:    'bg-red-700    shadow-md shadow-red-500/30    ring-1 ring-red-400/30',
-  green:  'bg-green-600  shadow-md shadow-green-500/40  ring-1 ring-green-400/30',
-  zinc:   'bg-zinc-700   ring-1 ring-zinc-500/30',
+  purple:
+    'bg-purple-600 shadow-md shadow-purple-500/40 ring-1 ring-purple-400/30',
+  amber:
+    'bg-amber-600  shadow-md shadow-amber-500/40  ring-1 ring-amber-400/30',
+  red: 'bg-red-700    shadow-md shadow-red-500/30    ring-1 ring-red-400/30',
+  green:
+    'bg-green-600  shadow-md shadow-green-500/40  ring-1 ring-green-400/30',
+  zinc: 'bg-zinc-700   ring-1 ring-zinc-500/30',
 };
 
 type Props = {
