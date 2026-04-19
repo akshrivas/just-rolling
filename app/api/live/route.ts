@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const ROUND_DURATION = 10;
+const ROUND_DURATION = 30;
 const GENESIS = 1700000000;
 
 // 🎲 deterministic dice
@@ -25,6 +25,7 @@ export async function GET() {
     result,
     previousResult,
     timeLeft,
+    round: slice,
     serverTime: now,
   });
 }

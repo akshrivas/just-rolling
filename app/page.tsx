@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import BetGrid from '@/components/BetGrid';
 import AmountSelector from '@/components/AmountSelector';
 import BetAction from '@/components/BetAction';
@@ -12,41 +12,84 @@ export default function Home() {
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState(100);
+  const [betPlaced, setBetPlaced] = useState(false);
+
+  const prevRound = useRef<number | null>(null);
+
+  // Reset bet state when a new round begins
+  useEffect(() => {
+    if (live?.round == null) return;
+    if (prevRound.current !== null && live.round !== prevRound.current) {
+      setBetPlaced(false);
+      setSelectedNumber(null);
+    }
+    prevRound.current = live.round;
+  }, [live?.round]);
 
   const handleBet = () => {
     if (!selectedNumber) return;
-
-    console.log('Bet placed:', {
-      number: selectedNumber,
-      amount: selectedAmount,
-    });
-
-    // next step: connect balance + result
+    setBetPlaced(true);
   };
 
   return (
-    <main className="min-h-screen bg-[#05060A] text-white flex flex-col items-center pt-10">
-      {/* 🎲 DICE (HERO SECTION) */}
-      <div className="mb-6">
-        <DiceDisplay
-          value={live?.result}
-          previous={live?.previousResult}
-          timer={live?.timeLeft}
-        />
+    <main className="flex-1 relative flex items-center justify-center px-4 py-4 overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-[600px] h-[400px] bg-purple-700/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* 🎯 BET GRID */}
-      <BetGrid selected={selectedNumber} onSelect={setSelectedNumber} />
+      <div className="relative w-full max-w-md bg-[#0D0D14] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 px-6 pt-5 pb-6">
+        {/* Card header row */}
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-white/30 text-xs font-medium tracking-widest uppercase">
+            Pool &amp; Stake
+          </p>
+          {live?.round != null && (
+            <span className="text-[10px] text-white/20 font-medium tracking-wide">
+              Round #{live.round}
+            </span>
+          )}
+        </div>
 
-      {/* 💰 AMOUNT SELECTOR */}
-      <AmountSelector selected={selectedAmount} onSelect={setSelectedAmount} />
+        {/* Dice */}
+        {live ? (
+          <DiceDisplay
+            value={live.result}
+            previous={live.previousResult}
+            timeLeft={live.timeLeft}
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-4">
+            <div className="w-28 h-28 rounded-3xl bg-[#1A1A22] animate-pulse" />
+            <div className="w-full h-[3px] rounded-full bg-[#1A1A22] animate-pulse mt-4" />
+          </div>
+        )}
 
-      {/* 🚀 BET ACTION */}
-      <BetAction
-        selectedNumber={selectedNumber}
-        selectedAmount={selectedAmount}
-        onBet={handleBet}
-      />
+        {/* Divider */}
+        <div className="h-px bg-white/5 my-5" />
+
+        {/* Bet Grid */}
+        <BetGrid
+          selected={selectedNumber}
+          onSelect={setSelectedNumber}
+          disabled={betPlaced}
+        />
+
+        {/* Amount Selector */}
+        <AmountSelector
+          selected={selectedAmount}
+          onSelect={setSelectedAmount}
+          disabled={betPlaced}
+        />
+
+        {/* Bet Action */}
+        <BetAction
+          selectedNumber={selectedNumber}
+          selectedAmount={selectedAmount}
+          onBet={handleBet}
+          betPlaced={betPlaced}
+        />
+      </div>
     </main>
   );
 }

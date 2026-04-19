@@ -53,34 +53,26 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
   const photo = rawPhoto ? rawPhoto.replace('s96-c', 's256-c') : null;
 
   return (
-    <header className="w-full h-16 px-8 flex items-center justify-between bg-[#05060A] border-b border-white/5">
+    <header className="w-full h-14 px-4 sm:px-8 flex items-center justify-between gap-4 bg-[#05060A] border-b border-white/10">
       {/* LEFT */}
-      <div className="flex items-center gap-2">
+      <div className="shrink-0 flex items-center gap-2">
         <div className="w-2 h-2 bg-purple-500 rounded-full" />
-        <span className="text-white font-semibold tracking-wide text-lg">
+        <span className="text-white font-semibold tracking-wide text-base whitespace-nowrap">
           Just Rolling
         </span>
       </div>
 
       {/* CENTER — GREETING */}
       {user && (
-        <div className="flex flex-col items-center leading-tight">
-          {/* Greeting */}
-          <div className="text-sm text-white/80">
+        <div className="flex-1 flex justify-center min-w-0">
+          <span className="text-sm text-white/60 truncate">
             👋 Hey {user.displayName?.split(' ')[0]}
-          </div>
-
-          {/* Active Bet */}
-          {currentBet && (
-            <div className="text-xs mt-1 px-3 py-1 rounded-full bg-purple-500/10 text-purple-300">
-              ₹{currentBet.amount} on {currentBet.number}
-            </div>
-          )}
+          </span>
         </div>
       )}
 
       {/* RIGHT */}
-      <div ref={ref} className="flex items-center gap-4 relative">
+      <div ref={ref} className="shrink-0 flex items-center gap-3 relative">
         {/* Balance */}
         {user && balance !== null && (
           <div className="text-sm text-purple-400 font-semibold tracking-wide">
@@ -111,7 +103,7 @@ export default function Header({ currentBet }: { currentBet?: CurrentBet }) {
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-3 w-48 bg-[#0B0C10] border border-white/10 rounded-xl shadow-xl p-2">
+              <div className="absolute right-0 top-full mt-2 w-48 bg-[#0B0C10] border border-white/10 rounded-xl shadow-xl p-2 z-50">
                 <div className="px-3 py-2 text-sm text-white truncate">
                   {user.displayName}
                 </div>
