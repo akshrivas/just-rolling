@@ -9,7 +9,7 @@ import ChatFeed from '@/components/ChatFeed';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
-  const { live, currentBet, placeBet, showBetPlaced, showLowBalance } =
+  const { live, currentBet, placeBet, showBetPlaced, showLowBalance, isLoggedIn } =
     useGame();
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
@@ -19,7 +19,7 @@ export default function Home() {
   const betPlaced = currentBet !== null && currentBet.roundId === live?.round;
   // Lock betting in the last 5 seconds to avoid round-boundary inconsistency
   const bettingLocked = (live?.timeLeft ?? 99) <= 5;
-  const bettingDisabled = betPlaced || bettingLocked;
+  const bettingDisabled = betPlaced || bettingLocked || !isLoggedIn;
 
   const prevRound = useRef<number | null>(null);
 
@@ -33,7 +33,7 @@ export default function Home() {
   }, [live?.round]);
 
   const handleBet = () => {
-    if (!selectedNumber || bettingLocked) return;
+    if (!selectedNumber || bettingLocked || !isLoggedIn) return;
     const ok = placeBet(selectedNumber, selectedAmount);
     if (ok) {
       showBetPlaced(selectedNumber, selectedAmount);
@@ -43,14 +43,14 @@ export default function Home() {
   };
 
   return (
-    <main className="flex-1 relative flex flex-col px-3 pt-2 pb-3 gap-2 overflow-hidden">
+    <main className="flex-1 relative flex flex-col items-center px-3 pt-2 pb-3 gap-2 overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
       </div>
 
-      {/* Chat feed — takes remaining space above the card, messages anchor to bottom */}
-      <div className="relative flex-1 flex flex-col justify-end overflow-hidden min-h-0">
+      {/* Chat feed — fills remaining height, messages anchor to bottom */}
+      <div className="relative flex-1 min-h-0 w-full max-w-md mx-auto flex flex-col justify-end overflow-hidden">
         <ChatFeed />
       </div>
 
@@ -84,28 +84,38 @@ export default function Home() {
         {/* Divider */}
         <div className="h-px bg-white/5 my-2" />
 
-        {/* Bet Grid */}
-        <BetGrid
-          selected={selectedNumber}
-          onSelect={setSelectedNumber}
-          disabled={bettingDisabled}
-        />
+        {/* Betting controls — gated behind login */}
+        <div className="relative">
+          {!isLoggedIn && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#0D0D14]/80 backdrop-blur-sm">
+              <span className="text-white/70 text-sm font-medium">Login to place bets</span>
+              <span className="text-white/35 text-xs">Tap the Login button above ↑</span>
+            </div>
+          )}
 
-        {/* Amount Selector */}
-        <AmountSelector
-          selected={selectedAmount}
-          onSelect={setSelectedAmount}
-          disabled={bettingDisabled}
-        />
+          {/* Bet Grid */}
+          <BetGrid
+            selected={selectedNumber}
+            onSelect={setSelectedNumber}
+            disabled={bettingDisabled}
+          />
 
-        {/* Bet Action */}
-        <BetAction
-          selectedNumber={selectedNumber}
-          selectedAmount={selectedAmount}
-          onBet={handleBet}
-          betPlaced={betPlaced}
-          bettingLocked={bettingLocked}
-        />
+          {/* Amount Selector */}
+          <AmountSelector
+            selected={selectedAmount}
+            onSelect={setSelectedAmount}
+            disabled={bettingDisabled}
+          />
+
+          {/* Bet Action */}
+          <BetAction
+            selectedNumber={selectedNumber}
+            selectedAmount={selectedAmount}
+            onBet={handleBet}
+            betPlaced={betPlaced}
+            bettingLocked={bettingLocked}
+          />
+        </div>
       </div>
     </main>
   );

@@ -17,6 +17,7 @@ export type Bet = {
 
 export type LastResult = {
   roundId: number;
+  predictedNumber: number; // what the user bet on
   result: number;    // dice value (-1 = missed round)
   winAmount: number; // 0 if lost
   amount: number;    // original stake, for loss display
@@ -143,6 +144,7 @@ export function useGameEngine({ live, deduct, credit, userId }: Props) {
 
     const result: LastResult = {
       roundId: roundToResolve,
+      predictedNumber: bet.number,
       result: diceResult,
       winAmount,
       amount: bet.amount,

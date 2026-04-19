@@ -21,6 +21,11 @@ export type ChatMessage = {
   id: number;
   sender: 'user' | 'system';
   text: string;
+  resultPayload?: {
+    predicted: number;
+    actual: number;
+    status: 'WON' | 'LOST';
+  };
 };
 
 // Pick a random item from a pool, avoiding the last shown value
@@ -34,18 +39,11 @@ const MESSAGES = {
     'Locked in 🎯',
     "Bet's on 👀",
     "You're in 🔥",
-    'Done. Let it ride 🎲',
+    'Let it ride 🎲',
   ],
-  rolling: ['Rolling… 🎲', "Let's see 👀", 'Big moment… 🎯', 'Here we go 🔥'],
-  win: (amount: string) => [
-    `🔥 Boom! ₹${amount}!`,
-    `That's a hit 💰 ₹${amount}`,
-    `Nice one! ₹${amount} 🎉`,
-    `Clean win 👌 ₹${amount}`,
-  ],
-  loss: ['Close one 😬', 'Not this time 👀', 'Missed it 🤏', 'Try again 🎯'],
+  rolling: ['Rolling… 🎲'],
   lowBalance: ['Not enough balance ⚠️', 'Low balance 👀'],
-  idle: ['Pick a number 🎲', "What's your call? 👀", 'Place your bet 🎯'],
+  idle: ['Place your bet 🎯'],
 };
 
 type GameContextValue = {
@@ -61,6 +59,7 @@ type GameContextValue = {
   showLowBalance: () => void;
   chatMessages: ChatMessage[];
   userPhotoUrl: string | null;
+  isLoggedIn: boolean;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -96,15 +95,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setMessageType(type);
   }, []);
 
-  // Add a message to the chat feed (max 15 kept)
+  // Add a message to the chat feed (max 6 kept)
   const chatIdRef = useRef(0);
-  const addToChat = useCallback((text: string, sender: 'user' | 'system') => {
-    const id = ++chatIdRef.current;
-    setChatMessages((prev) => {
-      const next = [...prev, { id, sender, text }];
-      return next.length > 15 ? next.slice(-15) : next;
-    });
-  }, []);
+  const addToChat = useCallback(
+    (
+      text: string,
+      sender: 'user' | 'system',
+      resultPayload?: ChatMessage['resultPayload'],
+    ) => {
+      const id = ++chatIdRef.current;
+      setChatMessages((prev) => {
+        const next = [...prev, { id, sender, text, resultPayload }];
+        return next.length > 6 ? next.slice(-6) : next;
+      });
+    },
+    [],
+  );
 
   // Post a system message to both the bar and the chat feed
   const lastSysMsgRef = useRef('');
@@ -142,14 +148,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (lastResultRoundShown.current === lastResult.roundId) return;
     lastResultRoundShown.current = lastResult.roundId;
     const timer = setTimeout(() => {
+      // Update message bar
       if (lastResult.status === 'WON') {
-        postSystem(MESSAGES.win(lastResult.winAmount.toLocaleString()), 'win');
+        setMessage(`🔥 Hit! +₹${lastResult.winAmount.toLocaleString()}`);
+        setMessageType('win');
       } else {
-        postSystem(MESSAGES.loss, 'loss');
+        setMessage('Missed 🤏');
+        setMessageType('loss');
+      }
+      // Structured result bubble in chat
+      if (lastResult.result !== -1) {
+        addToChat(
+          '',
+          'system',
+          {
+            predicted: lastResult.predictedNumber,
+            actual: lastResult.result,
+            status: lastResult.status,
+          },
+        );
       }
     }, 250);
     return () => clearTimeout(timer);
-  }, [lastResult, postSystem]);
+  }, [lastResult, addToChat]);
 
   // Rolling countdown — fires once per round when timeLeft hits ≤ 3
   const rollingRoundShown = useRef<number | null>(null);
@@ -176,6 +197,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         showLowBalance,
         chatMessages,
         userPhotoUrl,
+        isLoggedIn: userId !== null,
       }}
     >
       {children}
