@@ -1,13 +1,10 @@
 'use client';
 
-import type { LastResult } from '@/hooks/useGameEngine';
-
 type Props = {
   selectedNumber: number | null;
   selectedAmount: number;
   onBet: () => void;
   betPlaced: boolean;
-  lastResult: LastResult | null;
 };
 
 export default function BetAction({
@@ -15,40 +12,19 @@ export default function BetAction({
   selectedAmount,
   onBet,
   betPlaced,
-  lastResult,
 }: Props) {
   const isValid = selectedNumber !== null && !betPlaced;
   const win = Math.floor(selectedAmount * 5.4);
 
-  // Determine what to show in the preview row
-  const showLastResult =
-    lastResult !== null && !betPlaced && selectedNumber === null;
-
   return (
     <div className="mt-2">
-      {/* Preview row */}
+      {/* Preview row — only shows bet details when a number is selected */}
       <div className="flex items-center justify-between text-xs px-1 mb-2 h-4">
-        {betPlaced ? (
-          <span className="w-full text-center text-green-400 text-xs font-semibold tracking-wide">
-            Bet placed — waiting for roll
-          </span>
-        ) : showLastResult ? (
-          lastResult.status === 'WON' ? (
-            <span className="w-full text-center text-green-400 text-[11px] font-semibold tracking-wide">
-              You won ₹{lastResult.winAmount.toLocaleString()} 🎉
-            </span>
-          ) : (
-            <span className="w-full text-center text-red-400 text-xs font-medium tracking-wide">
-              You lost ₹{lastResult.amount.toLocaleString()}
-            </span>
-          )
-        ) : selectedNumber !== null ? (
+        {selectedNumber !== null && !betPlaced ? (
           <>
             <span className="text-white/70">
               ₹{selectedAmount} on{' '}
-              <span className="text-white font-semibold">
-                {selectedNumber}
-              </span>
+              <span className="text-white font-semibold">{selectedNumber}</span>
             </span>
             <span className="flex items-center gap-1.5 text-purple-400 font-semibold">
               <span className="text-white/50 text-[10px] font-normal">
@@ -59,7 +35,9 @@ export default function BetAction({
           </>
         ) : (
           <span className="text-white/50 w-full text-center text-xs">
-            Pick a number to place your bet
+            {betPlaced
+              ? 'Waiting for roll…'
+              : 'Pick a number to place your bet'}
           </span>
         )}
       </div>

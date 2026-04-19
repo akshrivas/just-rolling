@@ -55,15 +55,6 @@ export default function Header() {
         </span>
       </div>
 
-      {/* CENTER — GREETING */}
-      {user && (
-        <div className="flex-1 flex justify-center min-w-0">
-          <span className="text-sm text-white/60 truncate">
-            Hey {user.displayName?.split(' ')[0]}
-          </span>
-        </div>
-      )}
-
       {/* RIGHT */}
       <div ref={ref} className="shrink-0 flex items-center gap-4 relative">
         {/* Avatar + Dropdown */}

@@ -8,7 +8,8 @@ import DiceDisplay from '@/components/DiceDisplay';
 import { useGame } from '@/context/GameContext';
 
 export default function Home() {
-  const { live, currentBet, lastResult, placeBet, showMessage } = useGame();
+  const { live, currentBet, placeBet, showBetPlaced, showLowBalance } =
+    useGame();
 
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [selectedAmount, setSelectedAmount] = useState(100);
@@ -31,9 +32,9 @@ export default function Home() {
     if (!selectedNumber) return;
     const ok = placeBet(selectedNumber, selectedAmount);
     if (ok) {
-      showMessage('Bet locked 🎯', 'info');
+      showBetPlaced();
     } else {
-      showMessage('Not enough balance ⚠️', 'loss');
+      showLowBalance();
     }
   };
 
@@ -94,7 +95,6 @@ export default function Home() {
           selectedAmount={selectedAmount}
           onBet={handleBet}
           betPlaced={betPlaced}
-          lastResult={lastResult}
         />
       </div>
     </main>

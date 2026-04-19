@@ -34,8 +34,8 @@ export default function RootLayout({
       <body className="h-screen flex flex-col overflow-hidden bg-[#05060A]">
         <GameProvider>
           <Header />
-          <GameMessageBar />
           <GameInfoBlock />
+          <GameMessageBar />
           {children}
         </GameProvider>
       </body>
