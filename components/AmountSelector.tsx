@@ -49,7 +49,7 @@ export default function AmountSelector({
               }
             `}
           >
-            ₹{amt}
+            {amt.toLocaleString()}
           </button>
         );
       })}

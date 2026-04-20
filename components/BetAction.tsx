@@ -56,7 +56,7 @@ export default function BetAction({
         {selectedNumber !== null && !betPlaced ? (
           <>
             <span className="text-white/70">
-              ₹{selectedAmount} on{' '}
+              {selectedAmount.toLocaleString()} coins on{' '}
               <span className="text-white font-semibold">{selectedNumber}</span>
             </span>
             <span
@@ -65,7 +65,7 @@ export default function BetAction({
               <span className="text-white/50 text-[10px] font-normal">
                 5.4×
               </span>
-              Win ₹{win.toLocaleString()}
+              Win {win.toLocaleString()}
             </span>
           </>
         ) : (

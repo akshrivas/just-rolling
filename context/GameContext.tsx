@@ -152,7 +152,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const showBetPlaced = useCallback(
     (num: number, amount: number) => {
-      addToChat(`₹${amount.toLocaleString()} on ${num} 🎯`, 'user');
+      addToChat(`${amount.toLocaleString()} coins on ${num} 🎯`, 'user');
       postSystem(MESSAGES.betPlaced, 'info');
     },
     [addToChat, postSystem],
@@ -172,7 +172,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       // Update message bar + trigger result flash
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
       if (lastResult.status === 'WON') {
-        setMessage(`🔥 Hit! +₹${lastResult.winAmount.toLocaleString()}`);
+        setMessage(`🔥 Hit! +${lastResult.winAmount.toLocaleString()} coins`);
         setMessageType('win');
         setResultFlash('win');
         flashTimerRef.current = setTimeout(() => setResultFlash(null), 2500);
@@ -194,15 +194,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [lastResult, addToChat]);
 
-  // Rolling countdown — fires once per round when timeLeft hits ≤ 3
+  // Rolling countdown — fires once per round when timeLeft hits ≤ 3, only if a bet is active
   const rollingRoundShown = useRef<number | null>(null);
   useEffect(() => {
     if (!live) return;
     if (live.timeLeft > 3) return;
     if (rollingRoundShown.current === live.round) return;
     rollingRoundShown.current = live.round;
-    postSystem(MESSAGES.rolling, 'info');
-  }, [live, postSystem]);
+    if (currentBet && currentBet.roundId === live.round) {
+      postSystem(MESSAGES.rolling, 'info');
+    }
+  }, [live, currentBet, postSystem]);
 
   // Cleanup flash timer on unmount
   useEffect(

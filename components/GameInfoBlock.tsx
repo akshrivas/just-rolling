@@ -34,7 +34,7 @@ export default function GameInfoBlock() {
                   : 'text-purple-200'
               }`}
             >
-              ₹{balance.toLocaleString()}
+              {balance.toLocaleString()}
             </span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function GameInfoBlock() {
             </span>
             {currentBet ? (
               <span className="text-sm font-bold text-amber-300 mt-0.5">
-                ₹{currentBet.amount.toLocaleString()}
+                {currentBet.amount.toLocaleString()}
               </span>
             ) : (
               <span className="text-sm font-semibold text-white/25 mt-0.5">

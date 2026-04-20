@@ -93,6 +93,9 @@ export default function LandingView() {
   const dashOffset = CIRCUMFERENCE * (1 - timeLeft / roundDuration);
   const ringColor =
     timeLeft <= 3 ? '#ef4444' : timeLeft <= 5 ? '#f59e0b' : '#a855f7';
+  const timeLeftDisplay =
+    live == null ? '--' : String(Math.max(0, Math.floor(live.timeLeft)));
+  const isUrgent = live != null && live.timeLeft <= 2;
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center px-6 overflow-hidden">
@@ -176,24 +179,11 @@ export default function LandingView() {
           </div>
         </div>
 
-        {/* Recent results ticker — fixed height so layout doesn't jump */}
-        <div className="relative w-full h-8 overflow-hidden mb-8">
-          <div
-            className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
-            style={{ background: 'linear-gradient(to right, #05060A, transparent)' }}
-          />
-          <div
-            className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none"
-            style={{ background: 'linear-gradient(to left, #05060A, transparent)' }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center gap-3">
+        {/* Recent results ticker */}
+        <div className="flex items-center justify-center gap-3 h-8 mb-3">
             {recentResults.length < 3
-              ? /* Ghost placeholders so space is reserved */
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-4 h-4 rounded bg-white/4 shrink-0"
-                  />
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="w-4 h-4 rounded bg-white/8 shrink-0" />
                 ))
               : recentResults.map((r, i) => {
                   const D = DICE_MAP[r];
@@ -203,33 +193,62 @@ export default function LandingView() {
                       key={i}
                       size={isLatest ? 22 : 16}
                       className={`shrink-0 transition-all duration-300 ${
-                        isLatest ? 'text-white/80' : 'text-white/18'
+                        isLatest ? 'text-white/80' : 'text-white/25'
                       }`}
                     />
                   );
                 })}
-          </div>
         </div>
+
+        {/* Countdown */}
+        <p
+          className={`text-[12px] text-center mb-6 tabular-nums transition-opacity duration-300 ${
+            isUrgent ? 'text-red-400/90' : 'text-white/30'
+          }`}
+        >
+          Next round in{' '}
+          <span
+            className={`font-semibold ${isUrgent ? 'text-red-400' : 'text-white/50'}`}
+          >
+            {timeLeftDisplay}s
+          </span>
+        </p>
 
         {/* Headline */}
         <p
-          className="text-white font-bold text-[28px] tracking-tight leading-tight text-center mb-2"
+          className="text-white font-bold text-[28px] tracking-tight leading-tight text-center mb-1"
           style={{ transitionDelay: '80ms' }}
         >
-          Pick a number. <span className="text-purple-400">Win 5.4×.</span>
+          Pick a number (1–6)
         </p>
 
-        {/* Sub-copy */}
+        {/* Win copy */}
         <p
-          className="text-white/30 text-[13px] text-center mb-8 leading-relaxed"
+          className="text-purple-300/80 text-[15px] font-medium text-center mb-1"
+          style={{ transitionDelay: '100ms' }}
+        >
+          Win 5.4× coins if correct
+        </p>
+
+        {/* Helper */}
+        <p
+          className="text-white/25 text-[12px] text-center mb-2"
+          style={{ transitionDelay: '120ms' }}
+        >
+          Pick 1–6 before the round ends
+        </p>
+
+        {/* Support */}
+        <p
+          className="text-white/20 text-[11px] text-center mb-7"
           style={{ transitionDelay: '140ms' }}
         >
-          New round every 30s
+          Instant results · No real money
         </p>
 
         {/* CTA */}
         <div
-          className="w-full flex flex-col gap-3"
+          className="w-full flex flex-col items-center"
           style={{ transitionDelay: '200ms' }}
         >
           <button
@@ -237,18 +256,28 @@ export default function LandingView() {
             disabled={loginLoading}
             className="landing-cta w-full py-4 rounded-2xl bg-purple-600 hover:bg-purple-500 disabled:opacity-60 text-white font-semibold text-[15px] shadow-xl shadow-purple-900/50 transition-colors duration-150 cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed"
           >
-            {loginLoading ? 'Signing in…' : 'Continue with Google'}
+            {loginLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Signing in…
+              </span>
+            ) : (
+              'Start Playing'
+            )}
           </button>
 
+          <p className="mt-1.5 text-purple-400/60 text-xs font-medium">
+            Free 10,000 Coins
+          </p>
+
           {loginError && (
-            <p className="text-center text-red-400 text-xs px-2">
+            <p className="mt-2 text-center text-red-400 text-xs px-2">
               {loginError}
             </p>
           )}
 
-          <p className="text-center text-white/25 text-xs">
-            <span className="text-green-400/80">✓</span>&ensp;Free ₹10,000 to
-            start
+          <p className="mt-5 text-center text-white/20 text-[11px] leading-relaxed px-2">
+            Free to play · No real money · Instant results
           </p>
         </div>
       </div>
