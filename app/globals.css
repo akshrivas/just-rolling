@@ -217,3 +217,79 @@ body {
 .wallet-win {
   animation: wallet-win 1.4s ease-out forwards;
 }
+
+/* ─── Landing CTA shimmer ─── */
+@keyframes cta-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.landing-cta {
+  background-image: linear-gradient(
+    105deg,
+    #7c3aed 0%,
+    #7c3aed 40%,
+    rgba(255, 255, 255, 0.15) 50%,
+    #7c3aed 60%,
+    #7c3aed 100%
+  );
+  background-size: 200% auto;
+  animation: cta-shimmer 3.5s linear infinite;
+}
+
+/* ─── Landing: shimmer sweep on CTA button ─── */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-12deg);
+  }
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-12deg);
+  animation: shimmer 2.8s ease-in-out infinite;
+  animation-delay: 1.2s;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ─── Landing: stagger entrance ─── */
+@keyframes land-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.land-in-1 {
+  animation: land-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+.land-in-2 {
+  animation: land-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+.land-in-3 {
+  animation: land-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+.land-in-4 {
+  animation: land-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+.land-in-5 {
+  animation: land-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+}

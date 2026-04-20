@@ -12,7 +12,7 @@ export default function StatsBar() {
 
 function Stat({ label, value }: any) {
   return (
-    <div className="bg-white/5 backdrop-blur-md px-4 py-2 rounded-xl text-center min-w-[90px]">
+    <div className="bg-white/5 backdrop-blur-md px-4 py-2 rounded-xl text-center min-w-22.5">
       <p className="text-xs opacity-60">{label}</p>
       <p className="font-semibold">{value}</p>
     </div>

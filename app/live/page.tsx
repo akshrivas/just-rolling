@@ -11,9 +11,10 @@ export default function LivePage() {
   return (
     <main className="min-h-screen bg-[#0B0B0F] text-white flex items-center justify-center">
       <DiceDisplay
-        value={game.result}
-        previous={game.previousResult}
+        value={game.previousResult}
         timeLeft={game.timeLeft}
+        roundDuration={game.roundDuration}
+        accent="purple"
       />
     </main>
   );

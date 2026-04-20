@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useLive } from '@/hooks/useLive';
 import { useWallet } from '@/hooks/useWallet';
@@ -64,8 +65,12 @@ type GameContextValue = {
   showBetPlaced: (num: number, amount: number) => void;
   showLowBalance: () => void;
   chatMessages: ChatMessage[];
+  // ── Auth ──
+  user: User | null;
   userPhotoUrl: string | null;
   isLoggedIn: boolean;
+  authLoading: boolean;
+  // ── Game state ──
   resultFlash: 'win' | 'loss' | null;
   gameState: GameState;
   accent: AccentName;
@@ -74,17 +79,22 @@ type GameContextValue = {
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [userId, setUserId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
-      setUserId(u?.uid ?? null);
+      setUser(u);
       const raw = u?.photoURL || u?.providerData?.[0]?.photoURL || null;
       setUserPhotoUrl(raw ? raw.replace('s96-c', 's256-c') : null);
+      setAuthLoading(false);
     });
     return () => unsub();
   }, []);
+
+  const userId = user?.uid ?? null;
+  const isLoggedIn = user !== null;
 
   const live = useLive();
   const { balance, deduct, credit } = useWallet(userId);
@@ -100,8 +110,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [resultFlash, setResultFlash] = useState<'win' | 'loss' | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const isLoggedIn = userId !== null;
 
   const showMessage = useCallback((msg: string, type: MessageType = 'info') => {
     setMessage(msg);
@@ -245,8 +253,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         showBetPlaced,
         showLowBalance,
         chatMessages,
+        user,
         userPhotoUrl,
         isLoggedIn,
+        authLoading,
         resultFlash,
         gameState,
         accent,

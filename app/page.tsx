@@ -17,6 +17,7 @@ export default function Home() {
     showBetPlaced,
     showLowBalance,
     isLoggedIn,
+    authLoading,
     resultFlash,
     accent,
   } = useGame();
@@ -51,13 +52,12 @@ export default function Home() {
     }
   };
 
+  // While Firebase resolves the auth state, render nothing to prevent flicker
+  if (authLoading) return null;
+
   if (!isLoggedIn) {
     return (
-      <main className="flex-1 relative flex flex-col overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-150 h-100 bg-purple-700/10 blur-3xl rounded-full" />
-        </div>
+      <main className="flex-1 relative overflow-hidden">
         <LandingView />
       </main>
     );
